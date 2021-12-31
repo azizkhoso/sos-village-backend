@@ -26,22 +26,17 @@ router.post('/teacher', (req, res) => {
 router.post('/admin', async (req, res) => {
   try {
     await schema.validate(req.body, { abortEarly: false });
-    if (req.body.email !== process.env.ADMIN_EMAIL) {
-      res.status(401);
-      res.json({ errors: ['Admin email is incorrect'] });
-      return;
-    }
-    if (req.body.password !== process.env.ADMIN_PASSWORD) {
-      res.status(401);
-      res.json({ errors: ['Admin password is incorrect'] });
-      return;
-    }
-    const token = jwt.sign({ admin: 'admin' }, process.env.JWT_SECRET);
-    res.json({ admin: 'admin', token });
   } catch (e) {
-    res.status(400);
-    res.json({ errors: e.errors });
+    return res.status(500).json({ error: e.errors[0] });
   }
+  if (req.body.email !== process.env.ADMIN_EMAIL) {
+    return res.status(401).json({ error: 'Admin email is incorrect' });
+  }
+  if (req.body.password !== process.env.ADMIN_PASSWORD) {
+    return res.status(401).json({ error: 'Admin password is incorrect' });
+  }
+  const token = jwt.sign({ admin: 'admin' }, process.env.JWT_SECRET);
+  return res.json({ admin: 'admin', token });
 });
 
 module.exports = router;
