@@ -3,6 +3,7 @@
 const express = require('express');
 const multer = require('multer');
 const imageToUri = require('image-to-uri');
+const date = require('date-and-time');
 const fs = require('fs');
 const yup = require('yup');
 
@@ -21,6 +22,7 @@ const testSchema = yup.object({
   title: yup.string().required('Title is required').min(4, 'Enter at least 4 characters'),
   subject: yup.string().required('Subject is required'),
   startsAt: yup.date().min(new Date(), 'Test cannot be hold in past time'),
+  submittableBefore: yup.date().min(new Date(), 'Test cannot be uploaded after end time').required('End time is required'),
   isDemo: yup.bool(),
   qualification: yup.string().required('Qualification is required').oneOf(['XI', 'XII', 'Bachelor', 'Masters'], 'Not a valid qualification'),
   questions: yup.array().min(3, 'The test should have at least 3 questions'),
@@ -102,6 +104,27 @@ router.post('/tests', upload.array('images'), async (req, res) => {
     if (submittableBefore < endsAt) throw new Error(`Test should end at least ${Math.ceil(Number(duration / (1000 * 60)))} minutes after starting`);
     const newTest = await Test.create(test);
     res.json({ _id: newTest._id, title: newTest.title });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+router.delete('/tests/:_id', async (req, res) => {
+  try {
+    const { _id } = req.params;
+    let test = await Test.findOne({ _id }, { questions: 0 });
+    const now = new Date();
+    const startsAt = new Date(test.startsAt);
+    const submittableBefore = new Date(test.submittableBefore);
+    if (
+      date.subtract(submittableBefore, now).toSeconds() > 0
+      && date.subtract(now, startsAt).toSeconds() > 0
+    ) {
+      throw new Error('Can not delete test while it is active');
+    } else {
+      test = await Test.findOneAndDelete({ _id }, { new: true, projection: { questions: 0 } });
+    }
+    res.json({ test });
   } catch (e) {
     res.status(400).json({ error: e.message });
   }

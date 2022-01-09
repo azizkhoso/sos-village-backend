@@ -18,6 +18,11 @@ const TestSchema = mongoose.Schema({
     required: true,
     min: new Date(),
   },
+  submittableBefore: {
+    type: Date,
+    required: true,
+    min: new Date(),
+  },
   qualification: {
     type: String,
     trim: true,
