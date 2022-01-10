@@ -62,6 +62,11 @@ router.get('/tests', async (req, res) => {
   res.json({ tests });
 });
 
+router.get('/tests/:_id', async (req, res) => {
+  const test = await Test.findOne({ _id: req.params._id });
+  res.json({ test });
+});
+
 const upload = multer({ storage, limits: { fileSize: 30000 } });
 router.post('/tests', upload.array('images'), async (req, res) => {
   const test = req.body;
@@ -104,6 +109,56 @@ router.post('/tests', upload.array('images'), async (req, res) => {
     if (submittableBefore < endsAt) throw new Error(`Test should end at least ${Math.ceil(Number(duration / (1000 * 60)))} minutes after starting`);
     const newTest = await Test.create(test);
     res.json({ _id: newTest._id, title: newTest.title });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+router.post('/tests/update', upload.array('images'), async (req, res) => {
+  const test = req.body;
+  test.questions = JSON.parse(test.questions);
+  // Converting images to data uri
+  test.questions = test.questions.map((q) => {
+    if (q.image && typeof q.image === 'object') {
+      return {
+        ...q,
+        image: imageToUri(req.files.shift().path),
+      };
+    }
+    return q;
+  });
+  // Deleting images from local storage
+  fs.readdir('uploads', (err, files) => {
+    files.forEach((file) => fs.unlink(`uploads/${file}`, (e) => {
+      if (e) console.error(e);
+      console.log(`uploads/${file} deleted successfully...`);
+    }));
+  });
+  try {
+    await testSchema.validate(test);
+    for (let i = 0; i < test.questions.length; i += 1) {
+      const q = test.questions[i];
+      if (q.type === 'MCQS') {
+        await mcqsSchema.validate(q);
+      } else if (q.type === 'Blank') {
+        await blankSchema.validate(q);
+      } else if (q.type === 'TrueFalse') {
+        await trueFalseSchema.validate(q);
+      }
+    }
+    const startsAt = (new Date(test.startsAt)).getTime(); // returns milli seconds
+    const submittableBefore = (new Date(test.submittableBefore)).getTime();
+    if (submittableBefore <= startsAt) throw new Error('Test can not start and end at same time');
+    let duration = 0;
+    test.questions.forEach((q) => { duration += q.duration * 1000; });
+    const endsAt = startsAt + duration;
+    if (submittableBefore < endsAt) throw new Error(`Test should end at least ${Math.ceil(Number(duration / (1000 * 60)))} minutes after starting`);
+    const updatedTest = await Test.findOneAndUpdate(
+      { _id: test._id },
+      { ...test, _id: undefined },
+      { new: true, projection: { questions: 0 } },
+    );
+    res.json({ ...updatedTest });
   } catch (e) {
     res.status(400).json({ error: e.message });
   }
