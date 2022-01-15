@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const TeacherSchema = mongoose.Schema({
+const StudentSchema = mongoose.Schema({
   fullName: {
     type: String,
     trim: true,
@@ -21,11 +21,6 @@ const TeacherSchema = mongoose.Schema({
     required: true,
     minLength: 8,
   },
-  subjects: {
-    type: [String],
-    required: true,
-    minLength: 1,
-  },
   cnic: {
     type: Number,
     required: true,
@@ -35,6 +30,7 @@ const TeacherSchema = mongoose.Schema({
   },
   qualification: {
     type: String,
+    required: true,
     trim: true,
     default: '',
   },
@@ -42,6 +38,7 @@ const TeacherSchema = mongoose.Schema({
     type: Number,
     default: 10,
     min: 10,
+    max: 60,
   },
   gender: {
     type: String,
@@ -65,6 +62,6 @@ const TeacherSchema = mongoose.Schema({
   },
 });
 
-const Teacher = mongoose.model('Teacher', TeacherSchema);
+const Student = mongoose.model('Student', StudentSchema);
 
-module.exports = Teacher;
+module.exports = Student;

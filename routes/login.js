@@ -1,6 +1,8 @@
+/* eslint-disable no-underscore-dangle */
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const yup = require('yup');
+const Student = require('../models/student');
 
 const router = express.Router();
 
@@ -11,11 +13,22 @@ const schema = yup.object({
 
 router.post('/student', async (req, res) => {
   try {
-    await schema.validate(req.body, { abortEarly: false });
-    res.json({ student: 's1', token: 't1' });
+    await schema.validate(req.body);
+    const student = await Student.findOne({ email: req.body.email }).select('_id email password');
+    if (!student) throw new Error('Student not found');
+    if (student.password !== req.body.password) throw new Error('Incorrect password, please try again');
+    const token = jwt.sign({ student: { _id: student._id } }, process.env.JWT_SECRET);
+    return res.json(
+      {
+        student: {
+          ...student._doc,
+          password: undefined,
+        },
+        token,
+      },
+    );
   } catch (e) {
-    res.status(400);
-    res.json({ errors: e.errors });
+    return res.status(400).json({ error: e.message });
   }
 });
 
