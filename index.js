@@ -1,13 +1,16 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const db = require('./config/db');
 
 const signupRouter = require('./routes/signup');
 const loginRouter = require('./routes/login');
 const adminRouter = require('./routes/admin');
+const studentRouter = require('./routes/student');
+
+const verifyToken = require('./middlewares');
 
 const app = express();
+const db = require('./config/db');
 
 app.use(cors());
 app.use(express.json());
@@ -15,6 +18,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use('/signup', signupRouter);
 app.use('/login', loginRouter);
 app.use('/admin', adminRouter);
+app.use('/student', verifyToken, studentRouter);
 
 db.once('open', () => console.log('Connected to database successfully...'));
 app.listen(process.env.PORT, () => console.log(`Listening on port ${process.env.PORT}`));

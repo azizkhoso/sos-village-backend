@@ -14,14 +14,17 @@ const schema = yup.object({
 router.post('/student', async (req, res) => {
   try {
     await schema.validate(req.body);
-    const student = await Student.findOne({ email: req.body.email }).select('_id email password');
+    const student = (await Student.findOne({ email: req.body.email }).select('_id fullName email password qualification'))._doc;
     if (!student) throw new Error('Student not found');
     if (student.password !== req.body.password) throw new Error('Incorrect password, please try again');
-    const token = jwt.sign({ student: { _id: student._id } }, process.env.JWT_SECRET);
+    const token = jwt.sign(
+      { student: { ...student, password: undefined } },
+      process.env.JWT_SECRET,
+    );
     return res.json(
       {
         student: {
-          ...student._doc,
+          ...student,
           password: undefined,
         },
         token,
