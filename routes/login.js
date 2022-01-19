@@ -14,11 +14,14 @@ const schema = yup.object({
 router.post('/student', async (req, res) => {
   try {
     await schema.validate(req.body);
-    const student = (await Student.findOne({ email: req.body.email }).select('_id fullName email password qualification'))._doc;
-    if (!student) throw new Error('Student not found');
+    const result = await Student.findOne({ email: req.body.email }).select('_id fullName email password qualification');
+    if (!result) throw new Error('Student not found');
+    // The record lies in _doc field for Mongoose findeOne
+    if (!result._doc) throw new Error('Student not found');
+    const student = result._doc;
     if (student.password !== req.body.password) throw new Error('Incorrect password, please try again');
     const token = jwt.sign(
-      { student: { ...student, password: undefined } },
+      { student: { ...student, password: undefined } }, // Password should not be shared
       process.env.JWT_SECRET,
       {
         expiresIn: '1h',
@@ -28,7 +31,7 @@ router.post('/student', async (req, res) => {
       {
         student: {
           ...student,
-          password: undefined,
+          password: undefined, // Password should not be shared
         },
         token,
       },

@@ -25,7 +25,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use('/signup', signupRouter);
 app.use('/login', loginRouter);
-app.use('/admin', adminRouter);
+app.use('/admin', verifyToken, adminRouter);
 app.use('/student', verifyToken, studentRouter);
 
 db.once('open', () => console.log('Connected to database successfully...'));
