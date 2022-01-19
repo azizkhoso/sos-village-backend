@@ -22,8 +22,8 @@ async function verifyToken(req, res, next) {
   } catch (e) {
     if (e.status) {
       res.status(e.status || 401).json({ error: e.message });
-    } else if (e instanceof jwt.JsonWebTokenError) {
-      res.status(401).json({ error: 'Unauthorized request' });
+    } else if (e instanceof jwt.TokenExpiredError) {
+      res.status(403).json({ error: 'Session expired, please login again' });
     } else {
       res.status(500).json({ error: e.message });
     }

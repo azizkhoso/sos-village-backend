@@ -20,6 +20,9 @@ router.post('/student', async (req, res) => {
     const token = jwt.sign(
       { student: { ...student, password: undefined } },
       process.env.JWT_SECRET,
+      {
+        expiresIn: '1h',
+      },
     );
     return res.json(
       {
