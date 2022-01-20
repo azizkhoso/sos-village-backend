@@ -9,7 +9,7 @@ const loginRouter = require('./routes/login');
 const adminRouter = require('./routes/admin');
 const studentRouter = require('./routes/student');
 
-const verifyToken = require('./middlewares');
+const verifyToken = require('./middlewares/verifyToken');
 
 const options = {
   key: fs.readFileSync('key.pem'),
