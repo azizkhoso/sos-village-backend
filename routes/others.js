@@ -4,11 +4,11 @@ const Test = require('../models/test');
 const router = express.Router();
 
 router.get('/demo-tests', async (req, res) => {
+  const { query } = req;
   try {
     const demoTests = await Test.find({
       isDemo: true,
-      subject: req.body.subject,
-      qualification: req.body.qualification,
+      ...query,
     });
     res.json({ demoTests });
   } catch (e) {
