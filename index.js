@@ -6,6 +6,7 @@ const cors = require('cors');
 
 const signupRouter = require('./routes/signup');
 const loginRouter = require('./routes/login');
+const othersRouter = require('./routes/others');
 const adminRouter = require('./routes/admin');
 const studentRouter = require('./routes/student');
 
@@ -23,6 +24,7 @@ const db = require('./config/db');
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use('/', othersRouter);
 app.use('/signup', signupRouter);
 app.use('/login', loginRouter);
 app.use('/admin', verifyToken, adminRouter);
