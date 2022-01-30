@@ -13,7 +13,7 @@ const verifyToken = require('./middlewares/verifyToken');
 const app = express();
 const db = require('./config/db');
 
-app.use(cors());
+app.use(cors()); // For accessing from any where
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use('/', othersRouter);
