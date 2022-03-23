@@ -1,13 +1,13 @@
 {
- "name": "hope-testing-service-backend",
+ "name": "sos-village-backend",
  "version": "1.0.0",
- "description": "A backend code for hope testing service frontend",
+ "description": "A backend code for SOS Village Management System",
  "main": "index.js",
  "author": "Abdul Aziz Khoso",
  "license": "MIT",
  "scripts": {
-  "serve": "nodemon index.js",
-  "start": "node index.js",
+  "serve": "node index.js",
+  "start": "nodemon index.js",
   "lint": "eslint index.js"
  },
  "eslintConfig": {

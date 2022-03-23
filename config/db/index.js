@@ -1,14 +1,10 @@
 const mongoose = require('mongoose');
 
 const {
-  DB_USER,
-  DB_PASSWORD,
-  DB_HOST,
-  DB_PORT,
-  DB_NAME,
+  DB_URL,
 } = process.env;
 
-const uri = `mongodb://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}`;
+const uri = `${DB_URL}`;
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
 

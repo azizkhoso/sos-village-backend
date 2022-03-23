@@ -2,57 +2,22 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const yup = require('yup');
-const Student = require('../models/student');
 
 const router = express.Router();
 
 const schema = yup.object({
-  email: yup.string().required('Email is required').email('Enter a valid email'),
+  user: yup.string().required('User is required').min(3, 'User name should be at least 3 characters long'),
   password: yup.string().required('Password is required').min(8, 'Password should be at least 8 characters long'),
 });
 
-router.post('/student', async (req, res) => {
-  try {
-    await schema.validate(req.body);
-    const result = await Student.findOne({ email: req.body.email }).select('_id fullName email password qualification');
-    if (!result) throw new Error('Student not found');
-    // The record lies in _doc field for Mongoose findeOne
-    if (!result._doc) throw new Error('Student not found');
-    const student = result._doc;
-    if (student.password !== req.body.password) throw new Error('Incorrect password, please try again');
-    const token = jwt.sign(
-      { student: { ...student, password: undefined } }, // Password should not be shared
-      process.env.JWT_SECRET,
-      {
-        expiresIn: '1h',
-      },
-    );
-    return res.json(
-      {
-        student: {
-          ...student,
-          password: undefined, // Password should not be shared
-        },
-        token,
-      },
-    );
-  } catch (e) {
-    return res.status(400).json({ error: e.message });
-  }
-});
-
-router.post('/teacher', (req, res) => {
-  res.json({ teacher: 't1', token: 't1' });
-});
-
-router.post('/admin', async (req, res) => {
+router.post('/', async (req, res) => {
   try {
     await schema.validate(req.body, { abortEarly: false });
   } catch (e) {
-    return res.status(500).json({ error: e.errors[0] });
+    return res.status(400).json({ error: e.errors[0] });
   }
-  if (req.body.email !== process.env.ADMIN_EMAIL) {
-    return res.status(401).json({ error: 'Admin email is incorrect' });
+  if (req.body.user !== process.env.ADMIN_NAME) {
+    return res.status(401).json({ error: 'Admin name is incorrect' });
   }
   if (req.body.password !== process.env.ADMIN_PASSWORD) {
     return res.status(401).json({ error: 'Admin password is incorrect' });
