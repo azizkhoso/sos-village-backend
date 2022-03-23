@@ -11,10 +11,6 @@ async function verifyToken(req, res, next) {
     const user = jwt.verify(token, process.env.JWT_SECRET);
     if (user.admin) {
       req.admin = user.admin;
-    } else if (user.teacher) {
-      req.teacher = user.teacher;
-    } else if (user.student) {
-      req.student = user.student;
     } else {
       throw new StatusMessageError('Invalid token', 406);
     }

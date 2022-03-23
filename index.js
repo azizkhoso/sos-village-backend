@@ -15,6 +15,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use('/login', loginRouter);
 app.use('/admin', verifyToken, adminRouter);
+app.post('/login/verify', verifyToken, (req, res) => {
+  res.json({ verified: true });
+});
 
 db.once('open', () => console.log('Connected to database successfully...'));
 app.listen(process.env.PORT, () => console.log(`Listening on port ${process.env.PORT}`));
