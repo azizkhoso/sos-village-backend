@@ -14,6 +14,16 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.post('/', async (req, res) => {
+  try {
+    const house = await House.create(req.body);
+    res.json({ house });
+  } catch (e) {
+    if (e.code === 11000) res.status(400).json({ error: 'House already exists' });
+    else res.status(500).json({ error: e.message });
+  }
+});
+
 router.get('/:_id', async (req, res) => {
   try {
     const house = await House.findById(req.params._id);
@@ -23,13 +33,21 @@ router.get('/:_id', async (req, res) => {
   }
 });
 
-router.post('/new-house', async (req, res) => {
+router.post('/:_id', async (req, res) => {
   try {
-    const house = await House.create(req.body);
+    const house = await House.findByIdAndUpdate(req.params._id, { ...req.body, _id: undefined });
     res.json({ house });
   } catch (e) {
-    if (e.code === 11000) res.status(500).json({ error: 'House already exists' });
-    else res.status(500).json({ error: e.message });
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.delete('/:_id', async (req, res) => {
+  try {
+    const house = await House.findByIdAndRemove(req.params._id, { new: true });
+    res.json({ house });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
   }
 });
 
