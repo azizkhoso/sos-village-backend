@@ -3,6 +3,7 @@
 const express = require('express');
 
 const housesRouter = require('./houses');
+const itemsRouter = require('./items');
 
 const router = express.Router();
 
@@ -15,5 +16,7 @@ router.get('/announcements', async (req, res) => {
 });
 
 router.use('/houses', housesRouter);
+
+router.use('/items', itemsRouter);
 
 module.exports = router;
