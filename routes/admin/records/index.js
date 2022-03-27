@@ -8,7 +8,7 @@ router.get('/', async (req, res) => {
     const records = await Record.find({})
       .populate('item')
       .populate('house')
-      .sort({ date: -1 })
+      .sort('-issueDate')
       .exec();
     res.json({ records });
   } catch (e) {
@@ -27,7 +27,7 @@ router.post('/', async (req, res) => {
 
 router.get('/:_id', async (req, res) => {
   try {
-    const record = await Record.findById(req.params._id);
+    const record = await Record.findById(req.params._id).populate('item').populate('house').exec();
     res.json({ record });
   } catch (e) {
     res.status(500).json({ error: e.message });

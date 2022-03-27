@@ -5,6 +5,7 @@ const express = require('express');
 const housesRouter = require('./houses');
 const itemsRouter = require('./items');
 const recordsRouter = require('./records');
+const receiptsRouter = require('./receipts');
 
 const router = express.Router();
 
@@ -17,5 +18,7 @@ router.use('/houses', housesRouter);
 router.use('/items', itemsRouter);
 
 router.use('/records', recordsRouter);
+
+router.use('/receipts', receiptsRouter);
 
 module.exports = router;
