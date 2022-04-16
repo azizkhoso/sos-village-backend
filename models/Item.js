@@ -20,6 +20,11 @@ const ItemSchema = mongoose.Schema({
     required: true,
     minLength: 1,
   },
+  remainingQuantity: {
+    type: Number,
+    default: 0,
+    min: 0,
+  },
 });
 
 const Item = mongoose.model('Item', ItemSchema);

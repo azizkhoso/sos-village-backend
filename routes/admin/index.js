@@ -10,10 +10,6 @@ const inkindsRouter = require('./inkinds');
 
 const router = express.Router();
 
-router.get('/dashboard', async (req, res) => {
-  res.end('Admin dashboard');
-});
-
 router.use('/houses', housesRouter);
 
 router.use('/items', itemsRouter);
