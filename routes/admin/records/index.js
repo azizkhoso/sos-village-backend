@@ -18,6 +18,31 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.get('/report/:houseId', async (req, res) => {
+  try {
+    const { query } = req;
+    if (!query) throw new Error('Please supply query string with months and years');
+    if (!query.month || !query.year) throw new Error('Month or year missing in query string');
+    const startDate = `${Number(query.year)}-${Number(query.month)}-01`;
+    const endDate = `${Number(query.year)}-${Number(query.month) + 1}-01`;
+    const isoStartDate = new Date(startDate).toISOString();
+    const isoEndDate = new Date(endDate).toISOString();
+    const records = await Record.find(
+      {
+        house: req.params.houseId,
+        issueDate: { $gte: isoStartDate, $lt: isoEndDate },
+      },
+    )
+      .populate('item')
+      .populate('house')
+      .sort('-issueDate')
+      .exec();
+    res.json({ records });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 router.post('/', async (req, res) => {
   try {
     const item = await Item.findById(req.body.item);
